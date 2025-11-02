@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Network Scanner — Simulation (Safe)</title>
+  <link rel="stylesheet" href="./dist/output.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Network Scanner — Simulation 🛡️ (Safe Demo)</h1>
+    <p class="muted">This is a <strong>simulation</strong>. It does NOT perform any network scanning. Use only for learning.</p>
+
+    <label>Target (IP or hostname)</label>
+    <input id="target" placeholder="e.g. 192.168.1.1 or example.com" />
+
+    <label>Scan Type</label>
+    <select id="scanType">
+      <option value="quick">Quick (top common ports)</option>
+      <option value="tcp">TCP SYN (simulated)</option>
+      <option value="full">Full (simulated)</option>
+    </select>
+
+    <button id="scanBtn">Start Scan</button>
+
+    <div id="log" class="log"></div>
+  </div>
+
+<script>
+/*
+  SAFE SIMULATION ONLY — no network requests are made.
+  We produce deterministic "scan" results based on a simple hash of the target string,
+  so the same input gives the same output. This is educational only.
+*/
+
+const commonPorts = [
+  {p: 21, name: 'FTP'},
+  {p: 22, name: 'SSH'},
+  {p: 23, name: 'Telnet'},
+  {p: 25, name: 'SMTP'},
+  {p: 53, name: 'DNS'},
+  {p: 80, name: 'HTTP'},
+  {p: 110, name: 'POP3'},
+  {p: 139, name: 'SMB'},
+  {p: 143, name: 'IMAP'},
+  {p: 443, name: 'HTTPS'},
+  {p: 445, name: 'SMB (445)'},
+  {p: 3389, name: 'RDP'},
+  {p: 8080, name: 'HTTP-Alt'}
+];
+
+function simpleHash(s) {
+  // small deterministic hash returning 32-bit number
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h;
+}
+
+function simulateScan(target, type) {
+  const h = simpleHash(target.toLowerCase());
+  const results = [];
+  // decide how many ports "open" based on hash and scan type
+  let openness = ((h >>> 8) % 5) + 1; // 1..5
+  if (type === 'quick') openness = Math.min(openness, 3);
+  if (type === 'full') openness = Math.min(openness + 2, commonPorts.length);
+
+  // deterministic selection of ports
+  for (let i = 0; i < commonPorts.length; i++) {
+    const pick = ((h + i * 2654435761) >>> 0) % 100;
+    // threshold depends on openness
+    const threshold = 10 + openness * 18; // higher openness -> more likely open
+    const isOpen = pick < threshold;
+    results.push({port: commonPorts[i].p, service: commonPorts[i].name, open: isOpen});
+  }
+
+  return results;
+}
+
+function appendLog(text, cls='') {
+  const log = document.getElementById('log');
+  const div = document.createElement('div');
+  div.className = 'log-line ' + cls;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+document.getElementById('scanBtn').addEventListener('click', () => {
+  const target = document.getElementById('target').value.trim();
+  const type = document.getElementById('scanType').value;
+  const log = document.getElementById('log');
+  log.innerHTML = '';
+  if (!target) {
+    appendLog('Please enter a target (IP or hostname).', 'warn');
+    return;
+  }
+  appendLog(`Simulating ${type} scan for: ${target}`, 'info');
+
+  const results = simulateScan(target, type);
+
+  // simulate time delays to show progress
+  let step = 0;
+  function stepScan() {
+    if (step === 0) appendLog('Sending simulated probes...', 'info');
+    if (step < results.length) {
+      const r = results[step];
+      appendLog(`Port ${r.port}/tcp — ${r.service} — ${r.open ? 'OPEN' : 'closed'}`, r.open ? 'open' : 'closed');
+      step++;
+      setTimeout(stepScan, 180 + ((simpleHash(target) + step*37) % 200)); // staggered timing
+    } else {
+      appendLog('Scan complete. (This was a simulation.)', 'done');
+    }
+  }
+  setTimeout(stepScan, 300);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+/* Simulated UI styles (not Tailwind runtime) */
+body { font-family: Arial, Helvetica, sans-serif; background:#0f172a; color:#e6eef8; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+.container { width:96%; max-width:760px; background:#071129; padding:20px; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.6); }
+h1 { margin:0 0 8px 0; font-size:22px; color:#7dd3fc; }
+.muted { color:#9fb7d9; margin-bottom:12px; }
+label { display:block; margin-top:12px; font-size:13px; color:#cfe7ff; }
+input, select { width:100%; padding:10px 12px; margin-top:6px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:#0b1220; color:#e6eef8; outline:none; }
+button { margin-top:12px; padding:10px 14px; border-radius:8px; background:linear-gradient(180deg,#0ea5e9,#0369a1); color:white; border:none; cursor:pointer; font-weight:600; }
+.log { margin-top:14px; max-height:240px; overflow:auto; padding:10px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:8px; font-family:monospace; font-size:13px; }
+.log-line { padding:6px 4px; border-radius:4px; }
+.log-line.info { color:#93c5fd; }
+.log-line.warn { color:#fbbf24; }
+.log-line.open { color:#34d399; }
+.log-line.closed { color:#94a3b8; }
+.log-line.done { color:#a7f3d0; font-weight:700; }
